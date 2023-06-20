@@ -1,0 +1,40 @@
+{
+	"plugins": ["prettier", "unused-imports", "@typescript-eslint"],
+	"extends": ["eslint:recommended", "plugin:prettier/recommended", "plugin:@typescript-eslint/recommended"],
+	"parser": "@typescript-eslint/parser",
+//	"parserOptions": {
+//		"project": "./tsconfig.json"
+//	},
+	"ignorePatterns": ".eslintignore",
+	"settings": {
+		"import/parsers": {
+			"@typescript-eslint/parser": [".ts", ".tsx"]
+		}
+	},
+	"overrides": [
+		{
+			"files": ["*.ts", "*.tsx"],
+			"plugins": ["@typescript-eslint"],
+			"extends": ["plugin:@typescript-eslint/recommended"],
+			"rules": {
+				//Used for eslint fix and remove all unused imports
+				"unused-imports/no-unused-imports": "error",
+				// Includes .prettierrc.cjs rules
+				"prettier/prettier": [
+					"error",
+					{},
+					{
+						"usePrettierrc": true
+					}
+				]
+			}
+		},
+		{
+			"files": ["*.graphql"],
+			"extends": "plugin:@graphql-eslint/schema-recommended",
+			"parserOptions": {
+				"schema": "./schema.graphql"
+			}
+		}
+	]
+}
