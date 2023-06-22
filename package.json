@@ -1,35 +1,21 @@
 {
-	"name": "supabase-poc",
-	"version": "1.0.0",
-	"description": "",
-	"workspaces": [
-		"projects/*",
-		"packages/*"
-	],
+	"private": true,
 	"scripts": {
 		"build": "turbo run build",
 		"dev": "turbo run dev",
-		"openapi-server": "openapi-generator-cli generate -i http://localhost:8080/docs/json -g typescript-fetch -o ./packages/openapi-server/src --additional-properties=supportsES6=true",
-		"typecheck": "tsc --project tsconfig.json --pretty --noEmit",
-		"lint": "eslint --config .eslintrc.json .",
-		"format": "prettier --write \"./**/*.{css,scss,sass,ts,tsx,js,jsx,md,json,graphql,mjs,cjs}\"",
-		"prepare": "husky install"
+		"lint": "turbo run lint",
+		"format": "prettier --write \"**/*.{ts,tsx,md}\"",
+		"openapi-fastify": "openapi-generator-cli generate -i http://localhost:8080/api-doc/openapi.json -g typescript-fetch -o ./packages/openapi-server/src --additional-properties=supportsES6=true"
 	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
 	"devDependencies": {
-		"@graphql-eslint/eslint-plugin": "^3.19.1",
-		"@openapitools/openapi-generator-cli": "^2.6.0",
-		"@typescript-eslint/eslint-plugin": "^5.59.11",
-		"@typescript-eslint/parser": "^5.59.11",
-		"eslint": "^8.42.0",
-		"eslint-config-prettier": "^8.8.0",
-		"eslint-plugin-prettier": "^4.2.1",
-		"eslint-plugin-unused-imports": "^2.0.0",
+		"@turbo/gen": "^1.9.7",
+		"eslint": "^7.32.0",
+		"eslint-config-custom": "workspace:*",
+		"prettier": "^2.5.1",
+		"turbo": "^1.9.7",
 		"husky": "^8.0.3",
 		"lint-staged": "^13.2.2",
-		"prettier": "^2.8.8",
-		"turbo": "^1.10.3"
-	}
+		"@openapitools/openapi-generator-cli": "^2.6.0"
+	},
+	"packageManager": "pnpm@7.15.0"
 }

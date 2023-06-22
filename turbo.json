@@ -14,11 +14,10 @@
 				"!.next/cache/**"
 			]
 		},
-		"lint": {
-			"outputs": []
-		},
+		"lint": {},
 		"dev": {
-			"cache": false
+			"cache": false,
+			"persistent": true
 		}
 	}
 }
