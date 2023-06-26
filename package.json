@@ -5,17 +5,17 @@
 		"dev": "turbo run dev",
 		"lint": "turbo run lint",
 		"format": "prettier --write \"**/*.{ts,tsx,md}\"",
-		"openapi-fastify": "openapi-generator-cli generate -i http://localhost:8080/api-doc/openapi.json -g typescript-fetch -o ./packages/openapi-server/src --additional-properties=supportsES6=true"
+		"openapi-fastify": "openapi-generator-cli generate -i http://localhost:3002/docs/json -g typescript-fetch -o ./packages/openapi-server/src --additional-properties=supportsES6=true"
 	},
 	"devDependencies": {
-		"@turbo/gen": "^1.9.7",
+		"@openapitools/openapi-generator-cli": "^2.6.0",
+		"@turbo/gen": "^1.10.6",
 		"eslint": "^7.32.0",
 		"eslint-config-custom": "workspace:*",
-		"prettier": "^2.5.1",
-		"turbo": "^1.9.7",
 		"husky": "^8.0.3",
 		"lint-staged": "^13.2.2",
-		"@openapitools/openapi-generator-cli": "^2.6.0"
+		"prettier": "^2.8.8",
+		"turbo": "^1.10.6"
 	},
 	"packageManager": "pnpm@7.15.0"
 }

@@ -1,0 +1,5 @@
+packages:
+  - "apps/docs/*"
+  - "apps/server/*"
+  - "apps/web/*"
+  - "packages/*"

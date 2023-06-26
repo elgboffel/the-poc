@@ -1,0 +1,16 @@
+[package]
+name = "axum_poc"
+version = "0.1.0"
+edition = "2021"
+dev = "cargo watch -x run"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[dependencies]
+axum = "0.6.18"
+serde = { version = "1.0.149", features = ["derive"] }
+serde_json = "1.0.68"
+tokio = { version = "1.22.0", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+utoipa = { features = ["axum_extras"], version = "3.3.0" }
+utoipa-swagger-ui = { features = ["axum"], version = "3.1.3" }
