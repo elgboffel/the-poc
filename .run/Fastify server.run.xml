@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Fastify server" type="NodeJSConfigurationType" node-parameters="--require ts-node/register --require tsconfig-paths/register" path-to-js-file="./src/server.ts" working-dir="$PROJECT_DIR$/apps/server/fastify">
+    <method v="2" />
+  </configuration>
+</component>

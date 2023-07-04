@@ -12,7 +12,7 @@ export const userRoute = async (server: FastifyInstance) => {
         {
           schema: {
             response: {
-              200: addSchemaHelper("GetUserReply", getUserReply, server),
+              200: server.addSchemaHelper("GetUserReply", getUserReply),
             },
           },
         },

@@ -9,6 +9,8 @@ import cors from "@fastify/cors";
 import sensible from "@fastify/sensible";
 import caching from "@fastify/caching";
 import { userRoute } from "@feature/user/route";
+import {addSchemaHelper} from "@infrastructure/schema/add-schema-helper";
+import {getUserReply} from "@feature/user/get-user/schema";
 
 const BEARER_AUTH_READ_ONLY_KEYS = new Set(["public", "private"]);
 const BEARER_AUTH_WRITE_KEYS = new Set(["private"]);
@@ -16,6 +18,9 @@ const BEARER_AUTH_WRITE_KEYS = new Set(["private"]);
 const ALLOW_ORIGINS = "//localhost:3000, //localhost:1337";
 
 export default async function (server: FastifyInstance) {
+  /* Fastify decorator for adding a custom property to the Fastify instance */
+  server.decorate("addSchemaHelper", addSchemaHelper);
+
   /* Register defaults for Fastify */
   server.register(sensible);
 

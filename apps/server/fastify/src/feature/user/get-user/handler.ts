@@ -1,7 +1,7 @@
-﻿import { GenericRouteHandler } from "@infrastructure/types/route-handler";
-import { RouteHandler } from "fastify";
+﻿import { RouteHandler } from "fastify";
 import { prisma } from "@infrastructure/prisma/client";
 import { GetUserQuery, GetUserReply } from "./schema";
+import {GenericRouteHandler} from "@infrastructure/@types/route-handler";
 
 export type GetUserHandler = GenericRouteHandler<GetUserQuery, GetUserReply>;
 
