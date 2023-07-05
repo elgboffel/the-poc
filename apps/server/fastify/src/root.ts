@@ -9,8 +9,8 @@ import cors from "@fastify/cors";
 import sensible from "@fastify/sensible";
 import caching from "@fastify/caching";
 import { userRoute } from "@feature/user/route";
-import {addSchemaHelper} from "@infrastructure/schema/add-schema-helper";
-import {getUserReply} from "@feature/user/get-user/schema";
+import { addSchemaHelper } from "@infrastructure/schema/add-schema-helper";
+import { getUserReply } from "@feature/user/get-user/schema";
 
 const BEARER_AUTH_READ_ONLY_KEYS = new Set(["public", "private"]);
 const BEARER_AUTH_WRITE_KEYS = new Set(["private"]);

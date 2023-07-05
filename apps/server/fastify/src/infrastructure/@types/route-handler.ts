@@ -1,5 +1,5 @@
 export type GenericRouteHandler<TParams, TReply> = {
-	Params: TParams;
+  Params: TParams;
 
-	Reply: TReply;
+  Reply: TReply;
 };

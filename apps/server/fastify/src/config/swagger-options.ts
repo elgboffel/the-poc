@@ -1,5 +1,5 @@
 import { FastifySwaggerUiOptions } from "@fastify/swagger-ui";
-import {JSONObject, SwaggerOptions} from "@fastify/swagger";
+import { JSONObject, SwaggerOptions } from "@fastify/swagger";
 
 export const swaggerOptions: SwaggerOptions = {
   openapi: {
@@ -9,7 +9,6 @@ export const swaggerOptions: SwaggerOptions = {
     },
   },
   transform: (schema) => {
-
     console.log("schema", schema.schema);
     return schema as any;
   },
@@ -19,9 +18,9 @@ export const swaggerOptions: SwaggerOptions = {
       console.log("baseUri", baseUri);
       console.log("fragment", fragment);
 
-      return json.$id?.toString() || `def-${i}`
-    }
-  }
+      return json.$id?.toString() || `def-${i}`;
+    },
+  },
 };
 
 export const swaggerOptionsUI: FastifySwaggerUiOptions = {

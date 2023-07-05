@@ -1,5 +1,5 @@
 import "fastify";
-import {ZodType} from "zod";
+import { ZodType } from "zod";
 
 declare module "fastify" {
   interface FastifyInstance {

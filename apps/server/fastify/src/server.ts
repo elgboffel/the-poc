@@ -9,7 +9,7 @@ const server = fastify({ logger: true });
 server.register(root);
 
 // Start your server
-server.listen({port: 3002}, (err, address) => {
+server.listen({ port: 3002 }, (err, address) => {
   if (err) {
     console.error(err);
     process.exit(1);
