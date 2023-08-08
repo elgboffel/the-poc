@@ -7,7 +7,7 @@ export default component$(() => {
   return (
     <header>
       <div class={hstack({ justify: "space-between" })}>
-        <div class={css({ maxW: "20px" })}>
+        <div class={css({ maxW: "20px", color: "primary" })}>
           <a href="/" title="qwik">
             <QwikLogo height={50} width={143} />
           </a>

@@ -27,7 +27,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .serve(app.into_make_service())
         .await
         .unwrap();
-
     Ok(())
 }
 

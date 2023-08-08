@@ -8,7 +8,7 @@
 		"prepare": "panda codegen",
 		"build": "qwik build",
 		"build.client": "vite build",
-		"build.preview": "vite build --ssr src/entry.preview.tsx",
+		"build.preview": "vite build --ssr src/entry.preview.tsx",		
 		"build.types": "tsc --incremental --noEmit",
 		"deploy": "echo 'Run \"npm run qwik add\" to install a server adapter'",
 		"dev": "vite --mode ssr",
@@ -16,8 +16,7 @@
 		"format": "prettier --write .",
 		"format.check": "prettier --check .",
 		"lint": "eslint \"src/**/*.ts*\"",
-		"preview": "qwik build preview && vite preview --open",
-		"start": "vite --open --mode ssr",
+		"start": "qwik build preview && vite preview --open",
 		"qwik": "qwik"
 	},
 	"dependencies": {
