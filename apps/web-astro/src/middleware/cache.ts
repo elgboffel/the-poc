@@ -14,7 +14,7 @@ export const cache = defineMiddleware(async (context, next) => {
   const res = await next();
   const buffer = await res.arrayBuffer();
 
-  await KV.put(context.url.pathname, buffer, { expirationTtl: ttl });
+  await KV.put(context.url.pathname, buffer, { expirationTtl: 60 });
 
   return new Response(buffer);
 });
