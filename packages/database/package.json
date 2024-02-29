@@ -1,0 +1,37 @@
+{
+  "name": "@project/database",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "./src/index.ts",
+  "module": "./dist/index.mjs",
+  "types": "./src/index.ts",
+  "files": [
+    "dist/**"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "rimraf .turbo node_modules dist",
+    "generate": "drizzle-kit generate:pg",
+    "db.migrate.deploy": "tsx ./src/run/migration.ts",
+    "db.push": "prisma db push",
+    "format": "prisma format",
+    "lint": "eslint \"src/**/*.ts\"",
+    "prebuild": "npm run generate",
+    "predev": "npm run generate"
+  },
+  "dependencies": {
+    "dotenv": "16.3.1",
+    "drizzle-orm": "0.29.0",
+    "postgres": "3.4.3"
+  },
+  "devDependencies": {
+    "@project/eslint-config": "*",
+    "@project/ts-config": "*",
+    "drizzle-kit": "0.20.4",
+    "eslint": "8.54.0",
+    "ts-node": "10.9.1",
+    "tsup": "8.0.1",
+    "tsx": "4.2.0",
+    "typescript": "5.3.2"
+  }
+}

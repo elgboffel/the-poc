@@ -1,0 +1,11 @@
+.next/
+build/
+dist
+
+node_modules/
+target/
+coverage/
+snapshot/
+package-lock.json
+
+__generated/

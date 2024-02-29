@@ -1,0 +1,37 @@
+---
+import Layout from "../layouts/Layout.astro";
+import type { InferGetStaticParamsType, InferGetStaticPropsType, GetStaticPaths } from 'astro';
+import { BuilderComponent } from "../components/BuilderComponent/BuilderComponent";
+
+export const prerender = true;
+
+export const getStaticPaths = (async () => {
+    const { results: pages } = await fetch(
+        `https://cdn.builder.io/api/v3/content/page?apiKey=4d47819ecde84dd5b34cc3f215a90a8f`
+    ).then((res) => res.json());
+
+    return [
+        ...pages.map(({ ...props }) =>
+            ({
+                params: { path: props.data.url },
+                props
+            }),
+        ),
+    ];
+}) satisfies GetStaticPaths;
+
+type Params = InferGetStaticParamsType<typeof getStaticPaths>;
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { path } = Astro.params;
+const props = Astro.props;
+---
+
+<Layout>
+    <article>
+        <p>{ path }</p>
+      <a href="/contact">Contact page</a>
+    </article>
+    <BuilderComponent builderJson={props} model="page" client:load />
+</Layout>
+

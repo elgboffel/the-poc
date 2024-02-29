@@ -1,0 +1,29 @@
+{
+  "name": "@project/search",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "index.seed": "ts-node ./src/run/seed-recipe-index.ts",
+    "format": "prettier --write \"src/**/*.{css,scss,sass,ts,tsx,js,jsx,md,json,graphql,mjs,cjs}\"",
+    "lint": "eslint \"src/**/*.ts\"",
+    "typecheck": "tsc --project tsconfig.json --pretty --noEmit"
+  },
+  "dependencies": {
+    "@project/database": "*",
+    "dotenv": "16.3.1",
+    "meilisearch": "0.37.0"
+  },
+  "devDependencies": {
+    "@project/eslint-config": "*",
+    "@project/ts-config": "*",
+    "@types/node": "20.8.9",
+    "ts-node": "10.9.1",
+    "tsup": "7.2.0",
+    "typescript": "5.2.2"
+  }
+}

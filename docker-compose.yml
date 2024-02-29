@@ -1,0 +1,66 @@
+version: "3"
+
+services:
+  web:
+    container_name: web-next
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+    restart: no
+    environment:
+      DATABASE_URL: ${CONTAINER_DATABASE_URL}
+    ports:
+      - 1337:3000
+    networks:
+      - app_network
+    depends_on:
+      - db
+      - search
+
+#  api:
+#    container_name: api
+#    build:
+#      context: .
+#      dockerfile: ./apps/api/Dockerfile
+#    restart: always
+#    ports:
+#      - 1336:3002
+#    networks:
+#      - app_network
+
+  search:
+    container_name: search
+    image: getmeili/meilisearch:v1.4.2
+    ports:
+      - 7700:7700
+    environment:
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY:-MASTER_KEY}
+      - MEILI_NO_ANALYTICS=${MEILI_NO_ANALYTICS:-true}
+      - MEILI_ENV=${MEILI_ENV:-development}
+      - MEILI_LOG_LEVEL
+    networks:
+      - app_network
+    volumes:
+      - data:/var/lib/meili/data/
+    restart: always
+
+  db:
+    image: postgres:15.1
+    container_name: db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    networks:
+      - app_network
+    volumes:
+      - data:/var/lib/postgresql/data/
+    ports:
+      - "5433:5432"
+
+networks:
+  app_network: {}
+
+volumes:
+  data:
