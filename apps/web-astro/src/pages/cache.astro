@@ -4,9 +4,9 @@ import Layout from "../layouts/Layout.astro";
 const currentTime = new Date().toLocaleTimeString();
 
 // Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=30');
-const { KV } = Astro.locals.runtime.env;
-const cache = await KV.get("/cache/", { type: "json" });
-Astro.locals.cache(10);
+// const { KV } = Astro.locals.runtime.env;
+// const cache = await KV.get("/cache/", { type: "json" });
+// Astro.locals.cache(10);
 ---
 
 <Layout>
