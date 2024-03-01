@@ -16,7 +16,7 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
     return await next();
   }
 
-  const cachedRes = new Response(cached.response);
+  const cachedRes = new Response(new TextEncoder().encode(cached.response));
 
   if (cached && cached.expires > Date.now()) {
     return cachedRes;
