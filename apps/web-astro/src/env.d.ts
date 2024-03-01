@@ -3,6 +3,7 @@
 type KVNamespace = import("@cloudflare/workers-types").KVNamespace;
 type ENV = {
   KV: KVNamespace;
+  KV_SWR: KVNamespace;
 };
 
 // Depending on your adapter mode
@@ -14,5 +15,6 @@ declare namespace App {
   interface Locals extends Runtime {
     // This will allow us to set the cache duration for each page.
     ttl: number;
+    swr: number;
   }
 }

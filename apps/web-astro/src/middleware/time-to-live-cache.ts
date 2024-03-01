@@ -1,6 +1,6 @@
 import { defineMiddleware } from "astro:middleware";
 
-export const cache = defineMiddleware(async (context, next) => {
+export const timeToLiveCache = defineMiddleware(async (context, next) => {
   const ttl = context.locals.ttl
 
   if (!context.locals.runtime?.env || ttl) return await next();

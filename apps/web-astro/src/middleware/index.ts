@@ -1,4 +1,5 @@
 import { sequence } from "astro:middleware";
-import { cache } from "./cache.ts";
+import { timeToLiveCache } from "./time-to-live-cache.ts";
+import {staleWhileRevalidateCache} from "./stale-while-revalidate-cache.ts";
 
-export const onRequest = sequence(cache);
+export const onRequest = sequence(staleWhileRevalidateCache);
