@@ -24,7 +24,6 @@ export class Timer {
     timeObj.value = duration[0] * 1e3 + duration[1] * 1e-6;
     // this._times.delete(name);
     this._times.set(name, timeObj);
-    console.log(this._times);
     return timeObj;
   }
 
@@ -33,6 +32,7 @@ export class Timer {
   }
 
   allTimes() {
+    console.log(this._times);
     return this._times;
   }
 

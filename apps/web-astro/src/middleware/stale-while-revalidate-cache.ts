@@ -30,7 +30,8 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
     res.headers.set(
       "Server-Timing",
       Array.from(timer.allTimes()).reduce(
-        (acc, [key, value]) => `${acc}, ${key};dur=${value.value}`,
+        (acc, [key, value], index) =>
+          `${acc}${index === 0 ? "" : ", "}${key};dur=${value.value}`,
         ""
       )
     );
