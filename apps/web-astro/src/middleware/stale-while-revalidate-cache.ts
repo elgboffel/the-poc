@@ -21,7 +21,7 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   if (!cached) {
     timer.time("kvp");
     await put(next, context, KV_SWR, swr);
-    timer.time("kvp");
+    timer.timeEnd("kvp");
     const res = await next();
     res.headers.set(
       "Server-Timing",
