@@ -1,8 +1,5 @@
 export class Timer {
-  private readonly _times: Map<
-    string,
-    { key: string; start: [number, number]; value?: number }
-  >;
+  private readonly _times: Map<string, { key: string; start: number; value?: number }>;
 
   constructor() {
     this._times = new Map();
@@ -11,7 +8,7 @@ export class Timer {
   time(name: string) {
     this._times.set(name, {
       key: name,
-      start: process.hrtime(),
+      start: performance.now(),
     });
   }
 
@@ -20,8 +17,8 @@ export class Timer {
     if (!timeObj) {
       return console.warn(`No such name ${name}`);
     }
-    const duration = process.hrtime(timeObj.start);
-    timeObj.value = duration[0] * 1e3 + duration[1] * 1e-6;
+
+    timeObj.value = performance.now() - timeObj.start;
     // this._times.delete(name);
     this._times.set(name, timeObj);
     return timeObj;
