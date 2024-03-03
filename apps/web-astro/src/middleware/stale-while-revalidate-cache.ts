@@ -35,17 +35,38 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
         ""
       )
     );
+
     return res;
   }
 
+  timer.time("res");
   const cachedRes = new Response(new TextEncoder().encode(cached.response));
+  timer.timeEnd("res");
 
   if (cached && cached.expires > Date.now()) {
+    cachedRes.headers.set(
+      "Server-Timing",
+      Array.from(timer.allTimes()).reduce(
+        (acc, [key, value], index) =>
+          `${acc}${index === 0 ? "" : ", "}${key};dur=${value.value}`,
+        ""
+      )
+    );
     return cachedRes;
   }
+  timer.time("kvp");
 
   await put(next, context, KV_SWR, swr);
 
+  timer.timeEnd("kvp");
+  cachedRes.headers.set(
+    "Server-Timing",
+    Array.from(timer.allTimes()).reduce(
+      (acc, [key, value], index) =>
+        `${acc}${index === 0 ? "" : ", "}${key};dur=${value.value}`,
+      ""
+    )
+  );
   return cachedRes;
 });
 
