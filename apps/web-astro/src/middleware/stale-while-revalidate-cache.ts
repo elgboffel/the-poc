@@ -9,21 +9,17 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   if (!context.locals.runtime?.env || !swr) return await next();
   const { KV_SWR } = context.locals.runtime.env;
 
-  timer.time("KV GET");
-
+  timer.time("KV_GET");
   const cached = await KV_SWR.get<{ response: string; expires: number }>(
     context.url.pathname,
     { type: "json" }
   );
-
-  timer.timeEnd("KV GET");
+  timer.timeEnd("KV_GET");
 
   if (!cached) {
-    timer.time("KV PUT");
-
+    timer.time("KV_PUT");
     await put(next, context, KV_SWR, swr);
-
-    timer.timeEnd("KV PUT");
+    timer.timeEnd("KV_PUT");
 
     const res = await next();
 
@@ -38,11 +34,11 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
     setServerTimingMetrics(cachedRes, timer);
     return cachedRes;
   }
-  timer.time("KV PUT");
 
+  timer.time("KV_PUT");
   await put(next, context, KV_SWR, swr);
+  timer.timeEnd("KV_PUT");
 
-  timer.timeEnd("KV PUT");
   setServerTimingMetrics(cachedRes, timer);
   return cachedRes;
 });
