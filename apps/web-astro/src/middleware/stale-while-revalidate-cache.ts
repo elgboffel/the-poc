@@ -9,64 +9,41 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   if (!context.locals.runtime?.env || !swr) return await next();
   const { KV_SWR } = context.locals.runtime.env;
 
-  timer.time("kvg");
+  timer.time("KV GET");
 
   const cached = await KV_SWR.get<{ response: string; expires: number }>(
     context.url.pathname,
     { type: "json" }
   );
 
-  timer.timeEnd("kvg");
+  timer.timeEnd("KV GET");
 
   if (!cached) {
-    timer.time("kvp");
+    timer.time("KV PUT");
 
     await put(next, context, KV_SWR, swr);
 
-    timer.timeEnd("kvp");
+    timer.timeEnd("KV PUT");
 
     const res = await next();
 
-    res.headers.set(
-      "Server-Timing",
-      Array.from(timer.allTimes()).reduce(
-        (acc, [key, value], index) =>
-          `${acc}${index === 0 ? "" : ", "}${key};dur=${value.value}`,
-        ""
-      )
-    );
+    setServerTimingMetrics(res, timer);
 
     return res;
   }
 
-  timer.time("res");
   const cachedRes = new Response(new TextEncoder().encode(cached.response));
-  timer.timeEnd("res");
 
   if (cached && cached.expires > Date.now()) {
-    cachedRes.headers.set(
-      "Server-Timing",
-      Array.from(timer.allTimes()).reduce(
-        (acc, [key, value], index) =>
-          `${acc}${index === 0 ? "" : ", "}${key};dur=${value.value}`,
-        ""
-      )
-    );
+    setServerTimingMetrics(cachedRes, timer);
     return cachedRes;
   }
-  timer.time("kvp");
+  timer.time("KV PUT");
 
   await put(next, context, KV_SWR, swr);
 
-  timer.timeEnd("kvp");
-  cachedRes.headers.set(
-    "Server-Timing",
-    Array.from(timer.allTimes()).reduce(
-      (acc, [key, value], index) =>
-        `${acc}${index === 0 ? "" : ", "}${key};dur=${value.value}`,
-      ""
-    )
-  );
+  timer.timeEnd("KV PUT");
+  setServerTimingMetrics(cachedRes, timer);
   return cachedRes;
 });
 
@@ -86,5 +63,16 @@ async function put(
       response: body,
       expires: Date.now() + swr * 1000,
     })
+  );
+}
+
+function setServerTimingMetrics(res: Response, timer: Timer) {
+  res.headers.set(
+    "Server-Timing",
+    Array.from(timer.allTimes()).reduce(
+      (acc, [key, value], index) =>
+        `${acc}${index === 0 ? "" : ", "}${key};dur=${value.value}`,
+      ""
+    )
   );
 }
