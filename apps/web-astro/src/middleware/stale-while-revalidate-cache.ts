@@ -1,10 +1,14 @@
 import type { APIContext, MiddlewareNext } from "astro";
 import { defineMiddleware } from "astro:middleware";
-import { Worker } from "worker_threads";
 import { Timer } from "../timer.ts";
 
 export const staleWhileRevalidateCache = defineMiddleware(async (context, next) => {
   const swr = context.locals.swr ?? 5;
+
+  const isDev = import.meta.env.DEV;
+
+  if (isDev) return await next();
+
   const timer = new Timer();
 
   if (!context.locals.runtime?.env || !swr) return await next();
@@ -35,15 +39,10 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
     setServerTimingMetrics(cachedRes, timer);
     return cachedRes;
   }
-  const worker = new Worker("../cached-worker.ts");
-  worker.postMessage({ next, context, kv: KV_SWR, swr });
 
-  worker.on("message", (msg) => {
-    console.log(msg); // Logs: 'Done'
-  });
-  // timer.time("KV_PUT");
-  // await put(next, context, KV_SWR, swr);
-  // timer.timeEnd("KV_PUT");
+  timer.time("KV_PUT");
+  await put(next, context, KV_SWR, swr);
+  timer.timeEnd("KV_PUT");
 
   setServerTimingMetrics(cachedRes, timer);
   return cachedRes;

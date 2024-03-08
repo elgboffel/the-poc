@@ -19,7 +19,6 @@ export class Timer {
     }
 
     timeObj.value = performance.now() - timeObj.start;
-    // this._times.delete(name);
     this._times.set(name, timeObj);
     return timeObj;
   }
@@ -29,7 +28,6 @@ export class Timer {
   }
 
   allTimes() {
-    console.log(this._times);
     return this._times;
   }
 
