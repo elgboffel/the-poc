@@ -22,9 +22,7 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   timer.timeEnd("KV_GET");
 
   if (!cached) {
-    timer.time("KV_PUT");
     put(next, context, KV_SWR, swr);
-    timer.timeEnd("KV_PUT");
 
     const res = await next();
 
@@ -40,9 +38,7 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
     return cachedRes;
   }
 
-  timer.time("KV_PUT");
   put(next, context, KV_SWR, swr);
-  timer.timeEnd("KV_PUT");
 
   setServerTimingMetrics(cachedRes, timer);
   return cachedRes;
