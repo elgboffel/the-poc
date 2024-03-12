@@ -3,7 +3,7 @@ import { defineMiddleware } from "astro:middleware";
 import { Timer } from "../timer.ts";
 
 export const staleWhileRevalidateCache = defineMiddleware(async (context, next) => {
-  const swr = context.locals.swr ?? 5;
+  const swr = context.locals.swr ?? 10;
 
   const isDev = import.meta.env.DEV;
 
