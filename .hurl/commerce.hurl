@@ -18,5 +18,4 @@ Authorization: Bearer {{token}}
 #GET https://data.commercelayer.app/schemas/openapi.json
 #Accept: application/vnd.api+json
 
-
-
+#openapi-generator generate -i ./openapi.json -g rust-server -o ./tmp/test/

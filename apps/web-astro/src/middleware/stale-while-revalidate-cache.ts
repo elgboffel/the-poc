@@ -1,6 +1,6 @@
 import type { APIContext, MiddlewareNext } from "astro";
 import { defineMiddleware } from "astro:middleware";
-import { Timer } from "../timer.ts";
+import { Timer } from "../timer.js";
 
 export const staleWhileRevalidateCache = defineMiddleware(async (context, next) => {
   const swr = context.locals.swr ?? 10;
