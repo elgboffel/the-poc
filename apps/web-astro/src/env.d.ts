@@ -13,7 +13,6 @@ type Runtime = import("@astrojs/cloudflare").AdvancedRuntime<ENV>;
 
 declare namespace App {
   interface Locals extends Runtime {
-    // This will allow us to set the cache duration for each page.
     ttl: number;
     swr: number;
   }
