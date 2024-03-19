@@ -2,10 +2,10 @@ import { IError, ErrorMessage, NativeError } from "../types";
 
 export class Error implements IError {
   constructor(error: any) {
-    if (error instanceof NativeError) {
-      this.serializeError(error);
-      return;
-    }
+    // if (error instanceof NativeError) {
+    //   this.serializeError(error);
+    //   return;
+    // }
 
     if (this.isAppErrorType(error)) {
       this.serializeAppErrorType(error);
