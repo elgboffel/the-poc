@@ -3,21 +3,29 @@ import type { APIContext, MiddlewareNext } from "astro";
 import { defineMiddleware } from "astro:middleware";
 import { Timer } from "../timer.js";
 
-export const staleWhileRevalidateCache = defineMiddleware(async (context, next) => {
-  const swr = context.locals.swr;
+const isDev = import.meta.env.DEV;
 
-  const isDev = import.meta.env.DEV;
+export const staleWhileRevalidateCache = defineMiddleware(async (context, next) => {
+  const response = await next();
+  const cacheControl = response.headers.get("cache-control");
+
+  let swr: number | null = null;
+
+  if (cacheControl)
+    swr = parseCacheControlHeader(cacheControl)?.staleWhileRevalidate ?? null;
 
   if (isDev) return await next();
 
   const timer = new Timer();
 
-  if (!context.locals.runtime?.env || !swr) return await next();
+  if (!context.locals.runtime?.env || !swr) return response;
 
   const { KV_SWR } = context.locals.runtime.env;
 
   timer.time("KV_GET");
+
   let cache;
+
   try {
     cache = await KV_SWR.get<{ response: string; expires: number }>(
       context.url.pathname,
@@ -32,11 +40,9 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   if (!cache) {
     updateCache(next, context, KV_SWR, swr);
 
-    const res = await next();
+    setServerTimingMetrics(response, timer);
 
-    setServerTimingMetrics(res, timer);
-
-    return res;
+    return response;
   }
 
   const cachedRes = new Response(new TextEncoder().encode(cache.response));
@@ -84,4 +90,24 @@ function setServerTimingMetrics(res: Response, timer: Timer) {
       ""
     )
   );
+}
+
+function parseCacheControlHeader(headerValue: string): {
+  maxAge: number | null;
+  staleWhileRevalidate: number | null;
+} {
+  let maxAge = null;
+  let staleWhileRevalidate = null;
+
+  const directives = headerValue.split(", ");
+
+  for (const directive of directives) {
+    if (directive.startsWith("s-maxage")) {
+      maxAge = parseInt(directive.split("=")[1]);
+    } else if (directive.startsWith("stale-while-revalidate")) {
+      staleWhileRevalidate = parseInt(directive.split("=")[1]);
+    }
+  }
+
+  return { maxAge, staleWhileRevalidate };
 }
