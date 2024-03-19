@@ -47,6 +47,8 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
 
   const cachedRes = new Response(new TextEncoder().encode(cache.response));
 
+  if (cacheControl) cachedRes.headers.set("cache-control", cacheControl);
+
   if (cache && cache.expires > Date.now()) {
     setServerTimingMetrics(cachedRes, timer);
     return cachedRes;
