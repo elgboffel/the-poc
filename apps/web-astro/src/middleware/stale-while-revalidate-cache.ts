@@ -11,8 +11,9 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
 
   let swr: number | null = null;
 
-  if (cacheControl)
-    swr = parseCacheControlHeader(cacheControl)?.staleWhileRevalidate ?? null;
+  if (cacheControl) swr = parseCacheControlHeader(cacheControl)?.maxAge ?? null;
+
+  context.locals.swr = swr ?? 0;
 
   if (isDev) return await next();
 
@@ -104,7 +105,7 @@ function parseCacheControlHeader(headerValue: string): {
   const directives = headerValue.split(", ");
 
   for (const directive of directives) {
-    if (directive.startsWith("s-maxage")) {
+    if (directive.startsWith("max-age")) {
       maxAge = parseInt(directive.split("=")[1]);
     } else if (directive.startsWith("stale-while-revalidate")) {
       staleWhileRevalidate = parseInt(directive.split("=")[1]);
