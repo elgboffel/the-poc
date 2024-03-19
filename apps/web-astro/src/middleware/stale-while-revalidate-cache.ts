@@ -1,9 +1,10 @@
+import { logger } from "@project/common";
 import type { APIContext, MiddlewareNext } from "astro";
 import { defineMiddleware } from "astro:middleware";
 import { Timer } from "../timer.js";
 
 export const staleWhileRevalidateCache = defineMiddleware(async (context, next) => {
-  const swr = context.locals.swr ?? 10;
+  const swr = context.locals.swr;
 
   const isDev = import.meta.env.DEV;
 
@@ -12,17 +13,24 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   const timer = new Timer();
 
   if (!context.locals.runtime?.env || !swr) return await next();
+
   const { KV_SWR } = context.locals.runtime.env;
 
   timer.time("KV_GET");
-  const cached = await KV_SWR.get<{ response: string; expires: number }>(
-    context.url.pathname,
-    { type: "json" }
-  );
+  let cache;
+  try {
+    cache = await KV_SWR.get<{ response: string; expires: number }>(
+      context.url.pathname,
+      { type: "json" }
+    );
+  } catch (e) {
+    logger.error(JSON.stringify(e));
+  }
+
   timer.timeEnd("KV_GET");
 
-  if (!cached) {
-    put(next, context, KV_SWR, swr);
+  if (!cache) {
+    updateCache(next, context, KV_SWR, swr);
 
     const res = await next();
 
@@ -31,20 +39,20 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
     return res;
   }
 
-  const cachedRes = new Response(new TextEncoder().encode(cached.response));
+  const cachedRes = new Response(new TextEncoder().encode(cache.response));
 
-  if (cached && cached.expires > Date.now()) {
+  if (cache && cache.expires > Date.now()) {
     setServerTimingMetrics(cachedRes, timer);
     return cachedRes;
   }
 
-  put(next, context, KV_SWR, swr);
+  updateCache(next, context, KV_SWR, swr);
 
   setServerTimingMetrics(cachedRes, timer);
   return cachedRes;
 });
 
-async function put(
+async function updateCache(
   next: MiddlewareNext,
   context: APIContext<Record<string, any>>,
   kv: KVNamespace,
@@ -54,13 +62,17 @@ async function put(
   const buffer = await res.arrayBuffer();
   const body = new TextDecoder("utf-8").decode(buffer ?? undefined);
 
-  await kv.put(
-    context.url.pathname,
-    JSON.stringify({
-      response: body,
-      expires: Date.now() + swr * 1000,
-    })
-  );
+  try {
+    await kv.put(
+      context.url.pathname,
+      JSON.stringify({
+        response: body,
+        expires: Date.now() + swr * 1000,
+      })
+    );
+  } catch (e) {
+    logger.error(JSON.stringify(e));
+  }
 }
 
 function setServerTimingMetrics(res: Response, timer: Timer) {
