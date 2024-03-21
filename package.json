@@ -4,7 +4,7 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "start": "turbo start",
-    "lint": "turbo lint",
+    "lint": "turbo lint --",
     "clean": "turbo clean",
     "dc": "npm run check-dependency-version-consistency .",
     "typecheck": "turbo typecheck",
@@ -29,16 +29,16 @@
     "prettier": "^3.0.3",
     "prettier-plugin-tailwindcss": "^0.5.3",
     "ts-node": "^10.9.1",
-    "turbo": "^1.11.1"
+    "turbo": "1.12.5"
   },
   "lint-staged": {
     "(apps|packages)/**/*.{js,ts,jsx,tsx}": [
-      "prettier --write",
-      "eslint --fix",
-      "typecheck"
+      "npm run lint",
+      "npm run format",
+      "npm run typecheck"
     ],
     "*.json": [
-      "prettier --write"
+      "npm run format"
     ]
   },
   "packageManager": "npm@10.3.0",

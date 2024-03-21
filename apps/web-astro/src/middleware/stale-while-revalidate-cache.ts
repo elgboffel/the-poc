@@ -7,19 +7,19 @@ const isDev = import.meta.env.DEV;
 
 export const staleWhileRevalidateCache = defineMiddleware(async (context, next) => {
   const response = await next();
-  const cacheControl = response.headers.get("cache-control");
+  const cacheControlHeader = response.headers.get("cache-control");
 
-  let swr: number | null = null;
+  let cacheControl: ReturnType<typeof parseCacheControlHeader> | null = null;
 
-  if (cacheControl) swr = parseCacheControlHeader(cacheControl)?.maxAge ?? null;
+  if (cacheControlHeader) cacheControl = parseCacheControlHeader(cacheControlHeader);
 
-  context.locals.swr = swr ?? 0;
+  context.locals.swr = cacheControl?.maxAge ?? 0;
 
-  if (isDev) return await next();
+  if (isDev) return response;
 
   const timer = new Timer();
 
-  if (!context.locals.runtime?.env || !swr) return response;
+  if (!context.locals.runtime?.env || !cacheControl?.maxAge) return response;
 
   const { KV_SWR } = context.locals.runtime.env;
 
@@ -39,7 +39,7 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   timer.timeEnd("KV_GET");
 
   if (!cache) {
-    updateCache(next, context, KV_SWR, swr);
+    updateCache(next, context, KV_SWR, cacheControl.maxAge);
 
     setServerTimingMetrics(response, timer);
 
@@ -48,14 +48,14 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
 
   const cachedRes = new Response(new TextEncoder().encode(cache.response));
 
-  if (cacheControl) cachedRes.headers.set("cache-control", cacheControl);
+  if (cacheControlHeader) cachedRes.headers.set("cache-control", cacheControlHeader);
 
   if (cache && cache.expires > Date.now()) {
     setServerTimingMetrics(cachedRes, timer);
     return cachedRes;
   }
 
-  updateCache(next, context, KV_SWR, swr);
+  updateCache(next, context, KV_SWR, cacheControl.maxAge);
 
   setServerTimingMetrics(cachedRes, timer);
   return cachedRes;

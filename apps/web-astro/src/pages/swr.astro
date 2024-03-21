@@ -2,7 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 
 const currentTime = new Date().toLocaleTimeString();
-Astro.response.headers.set('Cache-Control', 'max-age=10, stale-while-revalidate=20');
+Astro.response.headers.set("Cache-Control", "public, max-age=10, stale-while-revalidate=20");
 // const { KV } = Astro.locals.runtime.env;
 // const cache = await KV.get("/cache/", { type: "json" });
 ---

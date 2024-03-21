@@ -11,8 +11,8 @@
     "access": "public"
   },
   "scripts": {
-    "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
