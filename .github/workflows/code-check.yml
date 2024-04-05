@@ -38,7 +38,7 @@ jobs:
       - name: Check format
         run: npm run format:check
 
-  tsc:
+  typecheck:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

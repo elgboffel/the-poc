@@ -1,6 +1,11 @@
 import { logger } from "@project/common";
 import type { APIContext, MiddlewareNext } from "astro";
 import { defineMiddleware } from "astro:middleware";
+import {
+  type ParseCacheControlHeader,
+  parseCacheControlHeader,
+} from "../common/headers/parse-cache-control-heder.ts";
+import { setServerTimingMetrics } from "../common/headers/set-server-timing-metrics.ts";
 import { Timer } from "../timer.js";
 
 const isDev = import.meta.env.DEV;
@@ -9,7 +14,7 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   const response = await next();
   const cacheControlHeader = response.headers.get("cache-control");
 
-  let cacheControl: ReturnType<typeof parseCacheControlHeader> | null = null;
+  let cacheControl: ParseCacheControlHeader | null = null;
 
   if (cacheControlHeader) cacheControl = parseCacheControlHeader(cacheControlHeader);
 
@@ -39,7 +44,7 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   timer.timeEnd("KV_GET");
 
   if (!cache) {
-    updateCache(next, context, KV_SWR, cacheControl.maxAge);
+    updateCache(next, context, KV_SWR, cacheControl?.maxAge);
 
     setServerTimingMetrics(response, timer);
 
@@ -55,7 +60,7 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
     return cachedRes;
   }
 
-  updateCache(next, context, KV_SWR, cacheControl.maxAge);
+  updateCache(next, context, KV_SWR, cacheControl?.maxAge);
 
   setServerTimingMetrics(cachedRes, timer);
   return cachedRes;
@@ -82,35 +87,4 @@ async function updateCache(
   } catch (e) {
     logger.error(JSON.stringify(e));
   }
-}
-
-function setServerTimingMetrics(res: Response, timer: Timer) {
-  res.headers.set(
-    "Server-Timing",
-    Array.from(timer.allTimes()).reduce(
-      (acc, [key, value], index) =>
-        `${acc}${index === 0 ? "" : ", "}${key};dur=${value.value}`,
-      ""
-    )
-  );
-}
-
-function parseCacheControlHeader(headerValue: string): {
-  maxAge: number | null;
-  staleWhileRevalidate: number | null;
-} {
-  let maxAge = null;
-  let staleWhileRevalidate = null;
-
-  const directives = headerValue.split(", ");
-
-  for (const directive of directives) {
-    if (directive.startsWith("max-age")) {
-      maxAge = parseInt(directive.split("=")[1]);
-    } else if (directive.startsWith("stale-while-revalidate")) {
-      staleWhileRevalidate = parseInt(directive.split("=")[1]);
-    }
-  }
-
-  return { maxAge, staleWhileRevalidate };
 }
