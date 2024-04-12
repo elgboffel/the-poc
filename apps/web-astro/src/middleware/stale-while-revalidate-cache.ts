@@ -1,5 +1,5 @@
 import { logger } from "@project/common";
-import type { APIContext } from "astro";
+import type { APIContext, MiddlewareNext } from "astro";
 import { defineMiddleware } from "astro:middleware";
 import {
   type ParseCacheControlHeader,
@@ -20,25 +20,15 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
 
   context.locals.swr = cacheControl?.maxAge ?? 0;
 
-  const timer = new Timer();
-
-  if (isDev) {
-    timer.time("KV_GET");
-    const buffer = await response.arrayBuffer();
-    const body = new TextDecoder("utf-8").decode(buffer ?? undefined);
-    const test = new Response(body, {
-      headers: response.headers,
-    });
-    timer.timeEnd("KV_GET");
-    setServerTimingMetrics(test, timer);
-    return test;
-  }
+  if (isDev) return response;
 
   if (!context.locals.runtime?.env || !cacheControl?.maxAge) return response;
 
-  const { KV_SWR } = context.locals.runtime.env;
+  const timer = new Timer();
 
   timer.time("KV_GET");
+
+  const { KV_SWR } = context.locals.runtime.env;
 
   let cache;
 
@@ -54,7 +44,7 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   timer.timeEnd("KV_GET");
 
   if (!cache) {
-    updateCache(response, context, KV_SWR, cacheControl?.maxAge).then((_) => _);
+    updateCache(next, context, KV_SWR, cacheControl?.maxAge);
 
     setServerTimingMetrics(response, timer);
 
@@ -65,23 +55,24 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
     headers: response.headers,
   });
 
-  if (cache && cache.expires > Date.now()) {
+  if (cache && cache.expires >= Date.now()) {
     setServerTimingMetrics(cachedRes, timer);
     return cachedRes;
   }
 
-  updateCache(response, context, KV_SWR, cacheControl?.maxAge).then((_) => _);
+  updateCache(next, context, KV_SWR, cacheControl?.maxAge);
 
   setServerTimingMetrics(cachedRes, timer);
   return cachedRes;
 });
 
 async function updateCache(
-  res: Response,
+  next: MiddlewareNext,
   context: APIContext<Record<string, any>>,
   kv: KVNamespace,
   swr: number
 ) {
+  const res = await next();
   const buffer = await res.arrayBuffer();
   const body = new TextDecoder("utf-8").decode(buffer ?? undefined);
 

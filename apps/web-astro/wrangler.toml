@@ -1,4 +1,4 @@
-name = "web-astro"
+name = "the-poc"
 
 kv_namespaces = [
   { binding = "KV", id = "7bcbaaf3da3940569b028efc6bf0853a" },
