@@ -76,7 +76,8 @@ async function updateCache(
 ) {
   const res = await next();
   const buffer = await res.arrayBuffer();
-  console.log("time", swr * 1000);
+  console.log("time", new Date().getTime());
+  console.log("swr", swr);
   console.log("time date", Date.now() + swr * 1000);
   try {
     await kv.put(context.url.pathname, buffer, {
