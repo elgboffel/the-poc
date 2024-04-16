@@ -40,6 +40,7 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
     logger.error(JSON.stringify(e));
   }
   console.log({ cache });
+  console.log("now", Date.now());
   console.log("cache", cache?.metadata && cache.metadata.expires >= Date.now());
   timer.timeEnd("KV_GET");
 
