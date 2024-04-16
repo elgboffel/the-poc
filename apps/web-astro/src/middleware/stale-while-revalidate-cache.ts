@@ -46,7 +46,7 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   timer.timeEnd("KV_GET");
 
   if (!cache?.value) {
-    updateCache(next, context, KV_SWR, cacheControl?.maxAge);
+    await updateCache(next, context, KV_SWR, cacheControl?.maxAge);
 
     setServerTimingMetrics(response, timer);
 
@@ -62,7 +62,7 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
     return cachedRes;
   }
 
-  updateCache(next, context, KV_SWR, cacheControl?.maxAge);
+  await updateCache(next, context, KV_SWR, cacheControl?.maxAge);
 
   setServerTimingMetrics(cachedRes, timer);
   return cachedRes;
