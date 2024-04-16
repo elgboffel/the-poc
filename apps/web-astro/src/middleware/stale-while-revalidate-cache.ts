@@ -83,7 +83,7 @@ async function updateCache(
   const buffer = await res.arrayBuffer();
 
   try {
-    await kv.put(context.url.pathname, buffer, {
+    kv.put(context.url.pathname, buffer, {
       metadata: { expires: Date.now() + swr * 1000 },
     });
   } catch (e) {
