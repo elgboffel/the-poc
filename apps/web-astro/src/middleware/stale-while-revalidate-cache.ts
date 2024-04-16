@@ -42,6 +42,7 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   console.log({ cache });
   console.log("now", Date.now());
   console.log("cache", cache?.metadata && Date.now() < cache.metadata.expires);
+
   timer.timeEnd("KV_GET");
 
   if (!cache?.value) {
@@ -75,7 +76,8 @@ async function updateCache(
 ) {
   const res = await next();
   const buffer = await res.arrayBuffer();
-
+  console.log("time", swr * 1000);
+  console.log("time date", Date.now() + swr * 1000);
   try {
     await kv.put(context.url.pathname, buffer, {
       metadata: { expires: Date.now() + swr * 1000 },
