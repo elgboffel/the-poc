@@ -39,14 +39,15 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   } catch (e) {
     logger.error(JSON.stringify(e));
   }
-  console.log({ cache });
-  console.log("now", Date.now());
-  console.log("cache", cache?.metadata && Date.now() < cache.metadata.expires);
 
   timer.timeEnd("KV_GET");
 
   if (!cache?.value) {
+    timer.time("KV_PUT");
+
     await updateCache(next, context, KV_SWR, cacheControl?.maxAge);
+
+    timer.timeEnd("KV_PUT");
 
     setServerTimingMetrics(response, timer);
 
@@ -62,7 +63,11 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
     return cachedRes;
   }
 
+  timer.time("KV_PUT");
+
   await updateCache(next, context, KV_SWR, cacheControl?.maxAge);
+
+  timer.timeEnd("KV_PUT");
 
   setServerTimingMetrics(cachedRes, timer);
   return cachedRes;
@@ -76,9 +81,7 @@ async function updateCache(
 ) {
   const res = await next();
   const buffer = await res.arrayBuffer();
-  console.log("time", new Date().getTime());
-  console.log("swr", swr);
-  console.log("time date", Date.now() + swr * 1000);
+
   try {
     await kv.put(context.url.pathname, buffer, {
       metadata: { expires: Date.now() + swr * 1000 },
