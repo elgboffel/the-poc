@@ -41,7 +41,7 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   }
   console.log({ cache });
   console.log("now", Date.now());
-  console.log("cache", cache?.metadata && cache.metadata.expires >= Date.now());
+  console.log("cache", cache?.metadata && Date.now() < cache.metadata.expires);
   timer.timeEnd("KV_GET");
 
   if (!cache?.value) {
@@ -56,7 +56,7 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
     headers: response.headers,
   });
 
-  if (cache.metadata && cache.metadata.expires >= Date.now()) {
+  if (cache.metadata && Date.now() < cache.metadata.expires) {
     setServerTimingMetrics(cachedRes, timer);
     return cachedRes;
   }
