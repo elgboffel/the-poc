@@ -11,7 +11,12 @@ import { Timer } from "../timer.js";
 const isDev = import.meta.env.DEV;
 
 export const staleWhileRevalidateCache = defineMiddleware(async (context, next) => {
+  const timer = new Timer();
+  console.log({ context });
+  timer.time("res");
   const response = await next();
+  timer.time("res");
+
   const cacheControlHeader = response.headers.get("cache-control");
 
   let cacheControl: ParseCacheControlHeader | null = null;
@@ -23,8 +28,6 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   if (isDev) return response;
 
   if (!context.locals.runtime?.env || !cacheControl?.maxAge) return response;
-
-  const timer = new Timer();
 
   timer.time("KV_GET");
 
@@ -83,7 +86,7 @@ async function updateCache(
   const buffer = await res.arrayBuffer();
 
   try {
-    kv.put(context.url.pathname, buffer, {
+    await kv.put(context.url.pathname, buffer, {
       metadata: { expires: Date.now() + swr * 1000 },
     });
   } catch (e) {
