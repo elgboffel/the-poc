@@ -33,16 +33,15 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   let cache;
 
   try {
-    cache = await KV_SWR.get<{ response: string; expires: number }>(
-      context.url.pathname,
-      { type: "json" }
-    );
+    cache = await KV_SWR.getWithMetadata<{ expires: number }>(context.url.pathname, {
+      type: "arrayBuffer",
+    });
   } catch (e) {
     logger.error(JSON.stringify(e));
   }
 
   timer.timeEnd("KV_GET");
-
+  console.log({ cache });
   if (!cache) {
     updateCache(next, context, KV_SWR, cacheControl?.maxAge);
 
@@ -51,11 +50,11 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
     return response;
   }
 
-  const cachedRes = new Response(cache.response, {
+  const cachedRes = new Response(cache.value, {
     headers: response.headers,
   });
 
-  if (cache && cache.expires >= Date.now()) {
+  if (cache.metadata && cache.metadata.expires >= Date.now()) {
     setServerTimingMetrics(cachedRes, timer);
     return cachedRes;
   }
@@ -74,16 +73,11 @@ async function updateCache(
 ) {
   const res = await next();
   const buffer = await res.arrayBuffer();
-  const body = new TextDecoder("utf-8").decode(buffer ?? undefined);
 
   try {
-    await kv.put(
-      context.url.pathname,
-      JSON.stringify({
-        response: body,
-        expires: Date.now() + swr * 1000,
-      })
-    );
+    await kv.put(context.url.pathname, buffer, {
+      metadata: { expires: Date.now() + swr * 1000 },
+    });
   } catch (e) {
     logger.error(JSON.stringify(e));
   }
