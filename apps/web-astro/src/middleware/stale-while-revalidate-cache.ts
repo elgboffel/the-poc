@@ -39,10 +39,10 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   } catch (e) {
     logger.error(JSON.stringify(e));
   }
-
-  timer.timeEnd("KV_GET");
   console.log({ cache });
-  if (!cache) {
+  timer.timeEnd("KV_GET");
+
+  if (!cache?.value) {
     updateCache(next, context, KV_SWR, cacheControl?.maxAge);
 
     setServerTimingMetrics(response, timer);
