@@ -12,10 +12,12 @@ const isDev = import.meta.env.DEV;
 
 export const staleWhileRevalidateCache = defineMiddleware(async (context, next) => {
   const timer = new Timer();
+  timer.time("total");
+
   console.log({ context });
   timer.time("res");
   const response = await next();
-  timer.time("res");
+  timer.timeEnd("res");
 
   const cacheControlHeader = response.headers.get("cache-control");
 
@@ -54,6 +56,8 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
 
     setServerTimingMetrics(response, timer);
 
+    timer.timeEnd("total");
+
     return response;
   }
 
@@ -62,7 +66,10 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   });
 
   if (cache.metadata && Date.now() < cache.metadata.expires) {
+    timer.timeEnd("total");
+
     setServerTimingMetrics(cachedRes, timer);
+
     return cachedRes;
   }
 
@@ -71,6 +78,8 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   await updateCache(next, context, KV_SWR, cacheControl?.maxAge);
 
   timer.timeEnd("KV_PUT");
+
+  timer.timeEnd("total");
 
   setServerTimingMetrics(cachedRes, timer);
   return cachedRes;
