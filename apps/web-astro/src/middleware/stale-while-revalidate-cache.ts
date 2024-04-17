@@ -1,5 +1,6 @@
+import type { KVNamespaceGetWithMetadataResult } from "@cloudflare/workers-types";
 import { logger } from "@project/common";
-import type { APIContext, MiddlewareNext } from "astro";
+import type { MiddlewareNext } from "astro";
 import { defineMiddleware } from "astro:middleware";
 import {
   type ParseCacheControlHeader,
@@ -7,30 +8,31 @@ import {
 } from "../common/headers/parse-cache-control-heder.ts";
 import { setServerTimingMetrics } from "../common/headers/set-server-timing-metrics.ts";
 import { Timer } from "../timer.js";
-import { skipMiddleware } from "./pass-through-routes.ts";
 
 const isDev = import.meta.env.DEV;
 
-export const staleWhileRevalidateCache = defineMiddleware(async (context, next) => {
-  const timer = new Timer();
-  timer.time("total");
+type WithMetadata = {
+  expires: number;
+  ttl: number;
+  headers?: string;
+};
 
+export const staleWhileRevalidateCache = defineMiddleware(async (context, next) => {
   if (isDev) return next();
 
   if (!context.locals.runtime?.env) return next();
 
-  timer.time("KV_GET");
-
   const { KV_SWR } = context.locals.runtime.env;
 
-  let cache;
+  let cache: KVNamespaceGetWithMetadataResult<ArrayBuffer, WithMetadata> | null = null;
+
+  const timer = new Timer();
+  timer.time("total");
+
+  timer.time("KV_GET");
 
   try {
-    cache = await KV_SWR.getWithMetadata<{
-      expires: number;
-      ttl: number;
-      headers: Headers;
-    }>(context.url.pathname, {
+    cache = await KV_SWR.getWithMetadata<WithMetadata>(context.url.pathname, {
       type: "arrayBuffer",
     });
   } catch (e) {
@@ -39,9 +41,11 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
 
   timer.timeEnd("KV_GET");
 
-  if (cache?.value && cache.metadata?.ttl) {
+  if (cache?.value && cache?.metadata?.ttl) {
     const cachedRes = new Response(cache.value, {
-      headers: cache.metadata.headers,
+      headers: cache.metadata.headers
+        ? stringHeadersToObject(cache.metadata.headers)
+        : {},
     });
 
     if (cache?.metadata && Date.now() > cache.metadata.expires) {
@@ -103,7 +107,7 @@ async function updateCache(
 
   try {
     await kv.put(pathname, buffer, {
-      metadata: { expires, ttl, headers: res.headers },
+      metadata: { expires, ttl, headers: headersToString(res.headers) } as WithMetadata,
     });
   } catch (e) {
     logger.error(JSON.stringify(e));
@@ -112,4 +116,25 @@ async function updateCache(
 
 function expiresAt(ttl: number) {
   return Date.now() + ttl * 1000;
+}
+
+function headersToString(headers: Headers) {
+  let headersString = "";
+  headers.forEach((value, key) => {
+    headersString += `${key}:${value};`;
+  });
+
+  return headersString;
+}
+
+function stringHeadersToObject(headers: string) {
+  const headersObject: Record<string, string> = {};
+  headers.split(";").forEach((header) => {
+    const [key, value] = header.split(":");
+    if (!key || !value) return;
+
+    headersObject[key] = value;
+  });
+
+  return headersObject;
 }
