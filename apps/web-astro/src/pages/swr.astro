@@ -1,15 +1,17 @@
 ---
 import Layout from "../layouts/Layout.astro";
 
+const sleep = (ms: number) => new Promise(
+  resolve => setTimeout(resolve, ms));
+
 const currentTime = new Date().toLocaleTimeString();
 Astro.response.headers.set("Cache-Control", "public, max-age=10, stale-while-revalidate=20");
-// const { KV } = Astro.locals.runtime.env;
-// const cache = await KV.get("/cache/", { type: "json" });
+
+await sleep(500);
 ---
 
 <Layout>
-  <h1>ISR Page</h1>
-  <h2>Updates every {Astro.locals.swr} seconds.</h2>
+  <h1>SWR Page</h1>
   <h4>{ currentTime }</h4>
 
   <ul>
