@@ -1,13 +1,13 @@
 import type { KVNamespaceGetWithMetadataResult } from "@cloudflare/workers-types";
-import { logger } from "@project/common";
+import {
+  logger,
+  parseSWRCacheControlHeader,
+  type ParseSWRCacheControlHeader,
+  setServerTimingMetrics,
+  Timer,
+} from "@project/common";
 import type { MiddlewareNext } from "astro";
 import { defineMiddleware } from "astro:middleware";
-import {
-  type ParseCacheControlHeader,
-  parseCacheControlHeader,
-} from "../common/headers/parse-cache-control-heder.ts";
-import { setServerTimingMetrics } from "../common/headers/set-server-timing-metrics.ts";
-import { Timer } from "../timer.js";
 
 const isDev = import.meta.env.DEV;
 
@@ -34,6 +34,7 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   try {
     cache = await KV_SWR.getWithMetadata<WithMetadata>(context.url.pathname, {
       type: "arrayBuffer",
+      cacheTtl: 86400 * 7, // 1 week
     });
   } catch (e) {
     logger.error(JSON.stringify(e));
@@ -73,9 +74,9 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
 
   const cacheControlHeader = response.headers.get("cache-control");
 
-  let cacheControl: ParseCacheControlHeader | null = null;
+  let cacheControl: ParseSWRCacheControlHeader | null = null;
 
-  if (cacheControlHeader) cacheControl = parseCacheControlHeader(cacheControlHeader);
+  if (cacheControlHeader) cacheControl = parseSWRCacheControlHeader(cacheControlHeader);
 
   if (!cacheControl?.maxAge || !cacheControl?.staleWhileRevalidate) return response;
 

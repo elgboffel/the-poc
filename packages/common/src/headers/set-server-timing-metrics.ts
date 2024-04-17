@@ -1,4 +1,4 @@
-import { Timer } from "../../timer.ts";
+import type { Timer } from "../performance/timer.ts";
 
 export function setServerTimingMetrics(res: Response, timer: Timer) {
   res.headers.set(

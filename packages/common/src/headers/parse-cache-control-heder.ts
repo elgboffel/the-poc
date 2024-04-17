@@ -1,11 +1,13 @@
-export type ParseCacheControlHeader = {
+export type ParseSWRCacheControlHeader = {
   maxAge: number | null;
   staleWhileRevalidate: number | null;
 };
 
-export function parseCacheControlHeader(headerValue: string): ParseCacheControlHeader {
-  let maxAge = null;
-  let staleWhileRevalidate = null;
+export function parseSWRCacheControlHeader(
+  headerValue: string
+): ParseSWRCacheControlHeader {
+  let maxAge: number | null = null;
+  let staleWhileRevalidate: number | null = null;
 
   const directives = headerValue.split(", ");
 
