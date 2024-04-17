@@ -26,12 +26,13 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   let cache;
 
   try {
-    cache = await KV_SWR.getWithMetadata<{ expires: number; ttl: number }>(
-      context.url.pathname,
-      {
-        type: "arrayBuffer",
-      }
-    );
+    cache = await KV_SWR.getWithMetadata<{
+      expires: number;
+      ttl: number;
+      headers: Headers;
+    }>(context.url.pathname, {
+      type: "arrayBuffer",
+    });
   } catch (e) {
     logger.error(JSON.stringify(e));
   }
@@ -40,7 +41,7 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
 
   if (cache?.value && cache.metadata?.ttl) {
     const cachedRes = new Response(cache.value, {
-      headers: context.request.headers,
+      headers: cache.metadata.headers,
     });
 
     if (cache?.metadata && Date.now() > cache.metadata.expires) {
@@ -102,7 +103,7 @@ async function updateCache(
 
   try {
     await kv.put(pathname, buffer, {
-      metadata: { expires, ttl },
+      metadata: { expires, ttl, headers: res.headers },
     });
   } catch (e) {
     logger.error(JSON.stringify(e));
