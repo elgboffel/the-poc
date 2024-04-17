@@ -43,9 +43,10 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
 
   if (cache?.value && cache?.metadata?.ttl) {
     const cachedRes = new Response(cache.value, {
-      headers: cache.metadata.headers
-        ? stringHeadersToObject(cache.metadata.headers)
-        : {},
+      headers: {
+        "cache-control": `max-age=${cache.metadata.ttl}`,
+        "content-type": "text/html",
+      },
     });
 
     if (cache?.metadata && Date.now() > cache.metadata.expires) {
