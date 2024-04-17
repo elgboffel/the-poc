@@ -13,8 +13,8 @@ const isDev = import.meta.env.DEV;
 
 type WithMetadata = {
   expires: number;
-  ttl: number;
-  headers?: string;
+  maxAge: number;
+  swr?: number;
 };
 
 export const staleWhileRevalidateCache = defineMiddleware(async (context, next) => {
@@ -41,10 +41,10 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
 
   timer.timeEnd("KV_GET");
 
-  if (cache?.value && cache?.metadata?.ttl) {
+  if (cache?.value && cache?.metadata?.maxAge && cache?.metadata?.swr) {
     const cachedRes = new Response(cache.value, {
       headers: {
-        "cache-control": `max-age=${cache.metadata.ttl}`,
+        "cache-control": `public, max-age=${cache.metadata.maxAge}, stale-while-revalidate=${cache.metadata.swr}`,
         "content-type": "text/html",
       },
     });
@@ -55,8 +55,9 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
           next,
           context.url.pathname,
           KV_SWR,
-          expiresAt(cache.metadata.ttl),
-          cache.metadata.ttl
+          expiresAt(cache.metadata.maxAge),
+          cache.metadata.maxAge,
+          cache.metadata.swr
         )
       );
     }
@@ -76,7 +77,7 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
 
   if (cacheControlHeader) cacheControl = parseCacheControlHeader(cacheControlHeader);
 
-  if (!cacheControl?.maxAge) return response;
+  if (!cacheControl?.maxAge || !cacheControl?.staleWhileRevalidate) return response;
 
   timer.time("KV_PUT");
 
@@ -85,7 +86,8 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
     context.url.pathname,
     KV_SWR,
     expiresAt(cacheControl.maxAge),
-    cacheControl?.maxAge
+    cacheControl.maxAge,
+    cacheControl.staleWhileRevalidate
   );
 
   timer.timeEnd("KV_PUT");
@@ -101,14 +103,15 @@ async function updateCache(
   pathname: string,
   kv: KVNamespace,
   expires: number,
-  ttl: number
+  maxAge: number,
+  swr: number
 ) {
   const res = await next();
   const buffer = await res.arrayBuffer();
 
   try {
     await kv.put(pathname, buffer, {
-      metadata: { expires, ttl, headers: headersToString(res.headers) } as WithMetadata,
+      metadata: { expires, maxAge, swr } as WithMetadata,
     });
   } catch (e) {
     logger.error(JSON.stringify(e));
@@ -117,25 +120,4 @@ async function updateCache(
 
 function expiresAt(ttl: number) {
   return Date.now() + ttl * 1000;
-}
-
-function headersToString(headers: Headers) {
-  let headersString = "";
-  headers.forEach((value, key) => {
-    headersString += `${key}:${value};`;
-  });
-
-  return headersString;
-}
-
-function stringHeadersToObject(headers: string) {
-  const headersObject: Record<string, string> = {};
-  headers.split(";").forEach((header) => {
-    const [key, value] = header.split(":");
-    if (!key || !value) return;
-
-    headersObject[key] = value;
-  });
-
-  return headersObject;
 }
