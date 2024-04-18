@@ -9,7 +9,7 @@ export default defineConfig({
   output: "server",
   adapter: cloudflare({
     platformProxy: {
-      enabled: false,
+      enabled: true,
     },
   }),
   integrations: [tailwind(), react()],
