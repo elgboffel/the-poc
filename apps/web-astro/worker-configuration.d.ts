@@ -2,6 +2,6 @@
 // by running `wrangler types`
 
 interface Env {
-	KV: KVNamespace;
-	KV_SWR: KVNamespace;
+  KV: KVNamespace;
+  KV_SWR: KVNamespace;
 }

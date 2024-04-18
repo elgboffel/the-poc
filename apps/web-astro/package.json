@@ -4,9 +4,9 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "wrangler types && astro dev",
-    "start": "wrangler types && astro dev",
+    "start": "astro dev",
     "build": "wrangler types && astro check && astro build",
-    "preview": "wrangler types && astro preview",
+    "preview": "wrangler types && astro build && wrangler pages dev",
     "logs": "wrangler pages deployment tail",
     "astro": "astro",
     "lint": "eslint",
@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@builder.io/sdk": "2.2.2",
+    "@cloudflare/workers-types": "4.20240405.0",
     "@project/eslint-config": "*",
     "@project/tailwind-config": "*",
     "wrangler": "3.51.0"

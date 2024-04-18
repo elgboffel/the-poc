@@ -16,8 +16,6 @@ tsconfig.tsbuildinfo
 
 .DS_Store
 
-.wrangler
-
 __migrations
 
 openapi.json
