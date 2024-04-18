@@ -9,8 +9,6 @@ import {
 import type { MiddlewareNext } from "astro";
 import { defineMiddleware } from "astro:middleware";
 
-const isDev = import.meta.env.DEV;
-
 type WithMetadata = {
   expires: number;
   maxAge: number;
@@ -18,8 +16,6 @@ type WithMetadata = {
 };
 
 export const staleWhileRevalidateCache = defineMiddleware(async (context, next) => {
-  if (isDev) return next();
-
   if (!context.locals.runtime?.env) return next();
 
   const { KV_SWR } = context.locals.runtime.env;
@@ -51,7 +47,7 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
     });
 
     if (cache?.metadata && Date.now() > cache.metadata.expires) {
-      context.locals.runtime.waitUntil(
+      context.locals.runtime.ctx.waitUntil(
         updateCache(
           next,
           context.url.pathname,
@@ -102,7 +98,7 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
 async function updateCache(
   next: MiddlewareNext,
   pathname: string,
-  kv: KVNamespace,
+  kv: Env["KV_SWR"],
   expires: number,
   maxAge: number,
   swr: number

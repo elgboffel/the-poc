@@ -6,16 +6,15 @@ import cloudflare from "@astrojs/cloudflare";
 
 // https://astro.build/config
 export default defineConfig({
+  vite: {
+    build: {
+      minify: false,
+    },
+  },
   output: "server",
   adapter: cloudflare({
-    runtime: {
-      mode: "local",
-      type: "pages",
-      bindings: {
-        "KV": {
-          type: "kv",
-        },
-      },
+    platformProxy: {
+      enabled: true,
     },
   }),
   integrations: [tailwind(), react()],

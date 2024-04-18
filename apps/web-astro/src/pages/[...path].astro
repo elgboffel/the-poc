@@ -1,7 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import type { InferGetStaticParamsType, InferGetStaticPropsType, GetStaticPaths } from 'astro';
-import { BuilderComponent } from "../components/BuilderComponent/BuilderComponent";
+// import { BuilderComponent } from "../components/BuilderComponent/BuilderComponent";
 export const prerender = true;
 
 export const getStaticPaths = (async () => {
@@ -31,6 +31,6 @@ const props = Astro.props;
     <p>{ path }</p>
     <a class="text-cyan-400" href="/swr">Cache page</a>
   </article>
-  <BuilderComponent builderJson={props} model="page" client:load />
+  <!--<BuilderComponent builderJson={props} model="page" client:load />-->
 </Layout>
 

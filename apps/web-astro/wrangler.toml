@@ -1,6 +1,15 @@
 name = "the-poc"
+pages_build_output_dir = "./dist"
 
-kv_namespaces = [
-  { binding = "KV", id = "7bcbaaf3da3940569b028efc6bf0853a" },
-  { binding = "KV_SWR", id = "8401042a0bb34b4c9656dc6af2c21ac0" },
-]
+[[kv_namespaces]]
+binding = "KV"
+id = "7bcbaaf3da3940569b028efc6bf0853a"
+
+[[kv_namespaces]]
+binding = "KV_SWR"
+id = "8401042a0bb34b4c9656dc6af2c21ac0"
+
+
+[dev]
+port = 8080
+local_protocol = "http"
