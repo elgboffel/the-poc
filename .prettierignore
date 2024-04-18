@@ -9,3 +9,5 @@ snapshot/
 package-lock.json
 
 __generated/
+
+worker-configuration.d.ts
