@@ -1,11 +1,13 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { setStaleWhileRevalidateHeader } from "../common/headers/set-stale-while-revalidate-header";
 
 const sleep = (ms: number) => new Promise(
   resolve => setTimeout(resolve, ms));
 
 const currentTime = new Date().toLocaleTimeString();
-Astro.response.headers.set("Cache-Control", "public, max-age=10, stale-while-revalidate=20");
+
+setStaleWhileRevalidateHeader(Astro.response,10, 5);
 
 await sleep(500);
 ---
