@@ -7,18 +7,12 @@ const sleep = (ms: number) => new Promise(
 const currentTime = new Date().toLocaleTimeString();
 Astro.response.headers.set("Cache-Control", "public, max-age=10, stale-while-revalidate=20");
 
-const { KV_SWR } = Astro.locals.runtime.env;
-const cache = await KV_SWR.getWithMetadata<{ ttl: string }>("/swr", {
-  type: "arrayBuffer",
-});
-console.log({ cache })
 await sleep(500);
 ---
 
 <Layout>
   <h1>SWR Page</h1>
   <h4>{ currentTime }</h4>
-  {() => console.log({ cache })}
   <ul>
     <li><a href="/contact" class="text-blue-700 hover:text-gray-700">Contact</a></li>
     <li><a href="/about" class="text-blue-700 hover:text-gray-700">About</a></li>
