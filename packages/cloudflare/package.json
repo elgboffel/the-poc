@@ -1,0 +1,28 @@
+{
+  "name": "@project/cloudflare",
+  "version": "0.1.0",
+  "sideEffects": false,
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@project/common": "*"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "4.20240405.0",
+    "@project/eslint-config": "*",
+    "@project/ts-config": "*",
+    "tsup": "^6.0.1",
+    "typescript": "5.4.5"
+  }
+}

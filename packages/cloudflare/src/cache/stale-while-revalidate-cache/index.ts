@@ -1,4 +1,8 @@
-import type { KVNamespaceGetWithMetadataResult } from "@cloudflare/workers-types";
+import type {
+  KVNamespaceGetWithMetadataResult,
+  KVNamespace,
+  ExecutionContext,
+} from "@cloudflare/workers-types";
 import {
   logger,
   parseSWRCacheControlHeader,
@@ -6,8 +10,6 @@ import {
   setServerTimingMetrics,
   Timer,
 } from "@project/common";
-import type { MiddlewareNext } from "astro";
-import { defineMiddleware } from "astro:middleware";
 
 type WithMetadata = {
   expires: number;
@@ -15,11 +17,24 @@ type WithMetadata = {
   swr?: number;
 };
 
-export const staleWhileRevalidateCache = defineMiddleware(async (context, next) => {
-  if (!context.locals.runtime?.env) return next();
+type Next = () => Promise<Response>;
 
-  const { KV_SWR } = context.locals.runtime.env;
-
+/**
+ * Implements a stale-while-revalidate caching strategy using Cloudflare Workers KV.
+ * @async
+ * @function staleWhileRevalidateCache
+ * @param {KVNamespace} kv - The KV namespace to use for caching.
+ * @param {string} pathname - The pathname of the request.
+ * @param {Next} next - The function to call to get the next response when the cache is stale or not present.
+ * @param {ExecutionContext} executionContext - The execution context of the worker.
+ * @returns {Promise<Response>} The response, either from the cache or from the `next` function.
+ */
+export async function staleWhileRevalidateCache(
+  kv: KVNamespace,
+  pathname: string,
+  next: Next,
+  executionContext: ExecutionContext
+) {
   let cache: KVNamespaceGetWithMetadataResult<ArrayBuffer, WithMetadata> | null = null;
 
   const timer = new Timer();
@@ -28,7 +43,7 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   timer.time("KV_GET");
 
   try {
-    cache = await KV_SWR.getWithMetadata<WithMetadata>(context.url.pathname, {
+    cache = await kv.getWithMetadata<WithMetadata>(pathname, {
       type: "arrayBuffer",
       cacheTtl: 86400 * 7, // 1 week
     });
@@ -47,11 +62,11 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
     });
 
     if (cache?.metadata && Date.now() > cache.metadata.expires) {
-      context.locals.runtime.ctx.waitUntil(
+      executionContext.waitUntil(
         updateCache(
           next,
-          context.url.pathname,
-          KV_SWR,
+          pathname,
+          kv,
           expiresAt(cache.metadata.maxAge),
           cache.metadata.maxAge,
           cache.metadata.swr
@@ -80,8 +95,8 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
 
   await updateCache(
     next,
-    context.url.pathname,
-    KV_SWR,
+    pathname,
+    kv,
     expiresAt(cacheControl.maxAge),
     cacheControl.maxAge,
     cacheControl.staleWhileRevalidate
@@ -92,13 +107,14 @@ export const staleWhileRevalidateCache = defineMiddleware(async (context, next) 
   timer.timeEnd("total");
 
   setServerTimingMetrics(response, timer);
+
   return response;
-});
+}
 
 async function updateCache(
-  next: MiddlewareNext,
+  next: Next,
   pathname: string,
-  kv: Env["KV_SWR"],
+  kv: KVNamespace,
   expires: number,
   maxAge: number,
   swr: number

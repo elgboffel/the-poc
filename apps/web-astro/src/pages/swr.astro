@@ -1,6 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { setStaleWhileRevalidateHeader } from "../common/headers/set-stale-while-revalidate-header";
+import { setStaleWhileRevalidateHeader } from "@project/common";
 
 const sleep = (ms: number) => new Promise(
   resolve => setTimeout(resolve, ms));

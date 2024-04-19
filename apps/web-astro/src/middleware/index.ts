@@ -1,6 +1,5 @@
 import { sequence } from "astro/middleware";
-import { passThroughRoutes } from "./pass-through-routes.ts";
-import { staleWhileRevalidateCache } from "./stale-while-revalidate-cache";
+import { staleWhileRevalidateCacheMiddleware } from "./stale-while-revalidate-cache-middleware.ts";
 
 // export function onRequest (context, next) {
 //   // intercept response data from a request
@@ -9,4 +8,4 @@ import { staleWhileRevalidateCache } from "./stale-while-revalidate-cache";
 //   return sequence(passThroughRoutes, staleWhileRevalidateCache);
 // };
 
-export const onRequest = sequence(staleWhileRevalidateCache);
+export const onRequest = sequence(staleWhileRevalidateCacheMiddleware);
