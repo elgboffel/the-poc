@@ -11,3 +11,5 @@ package-lock.json
 __generated/
 
 worker-configuration.d.ts
+
+env.d.ts

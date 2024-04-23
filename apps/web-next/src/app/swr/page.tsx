@@ -1,5 +1,3 @@
-export const runtime = "edge";
-
 export default function Page() {
   return (
     <div className="mt-32 flex flex-col items-center space-x-4">
