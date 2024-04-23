@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   // )
   //
   // KV Example:
-  const cache = getRequestContext().env.KV_SWR;
+  const cache = getRequestContext().env.KV_WEB_NEXT;
   console.log(await cache.getWithMetadata("/swr", { type: "arrayBuffer" }));
   // await myKv.put('suffix', ' from a KV store!')
   // const suffix = await myKv.get('suffix')
