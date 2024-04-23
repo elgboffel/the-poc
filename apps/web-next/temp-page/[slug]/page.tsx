@@ -3,6 +3,8 @@ import { Search } from "@/components/search";
 
 export const dynamicParams = true;
 
+export const runtime = "edge";
+
 export async function generateStaticParams() {
   return [];
 }

@@ -1,5 +1,3 @@
-import { Button } from "@project/ui";
-
 export default function NotFound() {
   return (
     <div className="mt-32 flex flex-col items-center space-x-4">
@@ -7,9 +5,6 @@ export default function NotFound() {
       <p className="text-lg text-stone-500 dark:text-stone-400">
         This page does not exist, or you do not have permission to view it
       </p>
-      <Button href="/" className="mt-4">
-        Back to App
-      </Button>
     </div>
   );
 }

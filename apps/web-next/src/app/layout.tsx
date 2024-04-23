@@ -1,4 +1,6 @@
-import { Metadata, Viewport } from "next";
+"use client";
+
+import { Viewport } from "next";
 import { cn } from "@project/common";
 import "@project/ui/styles/shared-globals.css";
 import { Analytics } from "@vercel/analytics/react";

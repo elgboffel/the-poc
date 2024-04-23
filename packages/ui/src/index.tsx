@@ -16,7 +16,7 @@ export * from "./components/accordion";
 export * from "./components/textarea";
 export * from "./components/alert";
 export * from "./components/skeleton";
-export * from "./components/popover";
+// export * from "./components/popover";
 export * from "./components/radio-group";
 export * from "./components/multi-select";
 export * from "./components/multi-select-freesolo";
