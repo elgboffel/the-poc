@@ -12,7 +12,7 @@ import {
 } from "@project/common";
 
 const KV_GET_TIMER_NAME = "cache get";
-const KV_PUT_TIMER_NAME = "cache put";
+const KV_PUT_TIMER_NAME = "cache update";
 const TOTAL_TIMER_NAME = "total cache runtime";
 
 type WithMetadata = {
