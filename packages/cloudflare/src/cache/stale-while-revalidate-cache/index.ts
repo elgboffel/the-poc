@@ -11,6 +11,10 @@ import {
   Timer,
 } from "@project/common";
 
+const KV_GET_TIMER_NAME = "cache get";
+const KV_PUT_TIMER_NAME = "cache put";
+const TOTAL_TIMER_NAME = "total cache runtime";
+
 type WithMetadata = {
   expires: number;
   maxAge: number;
@@ -38,9 +42,9 @@ export async function staleWhileRevalidateCache(
   let cache: KVNamespaceGetWithMetadataResult<ArrayBuffer, WithMetadata> | null = null;
 
   const timer = new Timer();
-  timer.time("total");
+  timer.time(TOTAL_TIMER_NAME);
 
-  timer.time("KV_GET");
+  timer.time(KV_GET_TIMER_NAME);
 
   try {
     cache = await kv.getWithMetadata<WithMetadata>(pathname, {
@@ -51,7 +55,7 @@ export async function staleWhileRevalidateCache(
     logger.error(JSON.stringify(e));
   }
 
-  timer.timeEnd("KV_GET");
+  timer.timeEnd(KV_GET_TIMER_NAME);
 
   if (cache?.value && cache?.metadata?.maxAge && cache?.metadata?.swr) {
     const cachedRes = new Response(cache.value, {
@@ -74,7 +78,7 @@ export async function staleWhileRevalidateCache(
       );
     }
 
-    timer.timeEnd("total");
+    timer.timeEnd(TOTAL_TIMER_NAME);
 
     setServerTimingMetrics(cachedRes, timer);
 
@@ -91,7 +95,7 @@ export async function staleWhileRevalidateCache(
 
   if (!cacheControl?.maxAge || !cacheControl?.staleWhileRevalidate) return response;
 
-  timer.time("KV_PUT");
+  timer.time(KV_PUT_TIMER_NAME);
 
   await updateCache(
     next,
@@ -102,9 +106,9 @@ export async function staleWhileRevalidateCache(
     cacheControl.staleWhileRevalidate
   );
 
-  timer.timeEnd("KV_PUT");
+  timer.timeEnd(KV_PUT_TIMER_NAME);
 
-  timer.timeEnd("total");
+  timer.timeEnd(TOTAL_TIMER_NAME);
 
   setServerTimingMetrics(response, timer);
 
