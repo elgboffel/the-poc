@@ -1,6 +1,7 @@
 {
   "private": true,
   "scripts": {
+    "deploy": "turbo deploy",
     "build": "turbo build",
     "dev": "turbo dev",
     "preview": "turbo preview",
