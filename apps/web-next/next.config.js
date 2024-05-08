@@ -19,4 +19,17 @@ module.exports = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  async headers() {
+    return [
+      {
+        source: "/swr",
+        headers: [
+          {
+            key: "x-custom-header",
+            value: "my custom header value",
+          },
+        ],
+      },
+    ];
+  },
 };

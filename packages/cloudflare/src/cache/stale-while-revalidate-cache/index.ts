@@ -21,7 +21,7 @@ type WithMetadata = {
   swr?: number;
 };
 
-type Next = () => Promise<Response>;
+type Next = () => Response | Promise<Response>;
 
 /**
  * Implements a stale-while-revalidate caching strategy using Cloudflare Workers KV.

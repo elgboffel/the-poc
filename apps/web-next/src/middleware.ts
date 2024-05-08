@@ -1,17 +1,20 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getRequestContext } from "@cloudflare/next-on-pages";
+import { staleWhileRevalidateCache } from "@project/cloudflare";
 
 // This function can be marked `async` if using `await` inside
-export async function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest): Promise<Response> {
   const { env, ctx } = getRequestContext();
-  console.log(env);
-  // return await staleWhileRevalidateCache(
-  //   env.KV_WEB_NEXT as any,
-  //   request.nextUrl.pathname,
-  //   NextResponse.next as any,
-  //   ctx
-  // );
+
+  const cachedResponse = await staleWhileRevalidateCache(
+    env.KV_WEB_NEXT as any,
+    request.nextUrl.pathname,
+    NextResponse.next,
+    ctx
+  );
+
+  if (cachedResponse) return cachedResponse;
 
   return NextResponse.next();
 }
