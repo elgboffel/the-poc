@@ -6,7 +6,7 @@
     "dev": "next dev",
     "start": "next start -p 4000",
     "build": "next build",
-    "pages:build": "npm run build-cf-types && wrangler apps/web-next && npx @cloudflare/next-on-pages",
+    "pages:build": "npm run build-cf-types && wrangler -c /apps/web-next && npx @cloudflare/next-on-pages",
     "preview": "npm run pages:build && wrangler pages dev .vercel/output/static",
     "deploy": "npm run pages:build",
     "build-cf-types": "wrangler types --env-interface CloudflareEnv env.d.ts",
